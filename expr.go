@@ -54,14 +54,17 @@ func MustParse(expr string) Expr {
 }
 
 func Parse(expr string) (e Expr, err error) {
+	defer func() {
+		if err != nil {
+			err = fmt.Errorf("cron: parsing %q: %v", expr, err)
+		}
+	}()
+
 	m, h, dom, mon, dow := splitFields(expr)
 
 	parseField := func(groups string, typ fieldType, min, max int) (field uint64) {
-		if err != nil {
-			return
-		}
-		if field, err = parseField(groups, typ, min, max); err != nil {
-			err = fmt.Errorf("cron: parsing %q: %v", expr, err)
+		if err == nil {
+			field, err = parseField(groups, typ, min, max)
 		}
 		return
 	}
