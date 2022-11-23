@@ -80,13 +80,13 @@ func Parse(expr string) (e Expr, err error) {
 	// Detect impossible combinations of month/day pairs, e.g., February 30th.
 	const monthsWith31Days = 1<<1 | 1<<3 | 1<<5 | 1<<7 | 1<<8 | 1<<10 | 1<<12
 	if e.mon&monthsWith31Days == 0 {
-		const domRange29 = 1<<30 - 1<<1
-		const domRange30 = 1<<31 - 1<<1
 		febOnly := e.mon == 1<<2
-		if febOnly && e.dom&domRange29 == 0 {
-			return e, fmt.Errorf("cron: field %q doesn't match any day of month 2", fieldDaysOfMonth)
-		} else if e.dom&domRange30 == 0 {
-			return e, fmt.Errorf("cron: field %q doesn't match any day of months 4, 6, 9 or 11", fieldDaysOfMonth)
+		domAllowed := uint32(1)<<31 - 1<<1
+		if febOnly {
+			domAllowed = uint32(1)<<30 - 1<<1
+		}
+		if e.dom&domAllowed == 0 {
+			return e, &parseError{fieldDaysOfMonth, errors.New("impossible day of month")}
 		}
 	}
 
