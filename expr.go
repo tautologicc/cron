@@ -76,17 +76,13 @@ func Parse(expr string) (e Expr, err error) {
 
 	// Detect impossible combinations of month/day pairs, e.g., February 30th.
 	const monthsWith31Days = 1<<1 | 1<<3 | 1<<5 | 1<<7 | 1<<8 | 1<<10 | 1<<12
-	const domRange29 = (uint32(1)<<29 - 1) << 1
-	const domRange30 = (uint32(1)<<30 - 1) << 1
 	if e.mon&monthsWith31Days == 0 {
-		domAllowed := domRange30
-		onlyFeb := e.mon == 1<<2
-		if onlyFeb {
-			domAllowed = domRange29
-		}
-		if e.dom&domAllowed == 0 && onlyFeb {
+		const domRange29 = 1<<30 - 1<<1
+		const domRange30 = 1<<31 - 1<<1
+		febOnly := e.mon == 1<<2
+		if febOnly && e.dom&domRange29 == 0 {
 			return e, fmt.Errorf("cron: field %q doesn't match any day of month 2", fieldDaysOfMonth)
-		} else if e.dom&domAllowed == 0 {
+		} else if e.dom&domRange30 == 0 {
 			return e, fmt.Errorf("cron: field %q doesn't match any day of months 4, 6, 9 or 11", fieldDaysOfMonth)
 		}
 	}
@@ -120,11 +116,11 @@ func parseField(groups string, typ fieldType, min, max int) (field uint64, err e
 		return field, &parseError{typ: typ, err: errors.New("field is empty")}
 	}
 	for groups != "" {
-		group, groupsRest, found := strings.Cut(groups, ",")
-		if found && groupsRest == "" {
+		group, rest, commaFound := strings.Cut(groups, ",")
+		if commaFound && rest == "" {
 			return field, &parseError{typ, errors.New("trailing comma found")}
 		}
-		groups = groupsRest
+		groups = rest
 
 		if from, to, step, err := parseGroup(typ, group, min, max); err != nil {
 			return field, err
