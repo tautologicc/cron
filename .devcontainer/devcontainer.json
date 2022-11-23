@@ -1,23 +1,18 @@
 {
-        "name": "cron",
-        "image": "docker.io/library/golang:1.19",
-        "remoteUser": "vscode",
-        "features": {
-                "ghcr.io/devcontainers/features/common-utils:1": {
-                        "installZsh": false,
-                        "installOhMyZsh": false,
-                        "username": "vscode"
-                },
-                "ghcr.io/devcontainers/features/git:1": {
-                        "version": "system"
-                }
-        },
-        "customizations": {
-                "vscode": {
-                        "extensions": [
-                                "editorconfig.editorconfig",
-                                "golang.go"
-                        ]
-                }
-        }
+	"name": "cron",
+	"image": "docker.io/library/golang:1.19",
+	"remoteUser": "vscode",
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:1": {
+			"installZsh": false
+		}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"editorconfig.editorconfig",
+				"golang.go"
+			]
+		}
+	}
 }
